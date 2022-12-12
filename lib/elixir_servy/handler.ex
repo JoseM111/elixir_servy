@@ -1,6 +1,21 @@
 # handler.ex
 
-defmodule Handler do
+defmodule ElixirServy.Handler do
+  @moduledoc "Handles HTTP requests"
+  import ElixirServy.Plugins,
+    only: [
+      rewrite_path: 1,
+      log_request: 1,
+      track_status_code: 1
+    ]
+
+  import ElixirServy.Parser, only: [parse_request: 1]
+  alias ElixirServy.Conversation
+
+  # declaring a compile-time constant
+  @pages_path Path.expand("../../pages", __DIR__)
+
+  @doc "Transforms the request into a response"
   def request_handler(request) do
     # example 1
     # conversation = parse_request(request)
@@ -15,46 +30,88 @@ defmodule Handler do
     # best convention below
     request
     |> parse_request()
+    |> rewrite_path()
+    |> log_request()
     |> route_response()
+    |> track_status_code()
     |> format_response()
   end
 
-  # the parse functions changes a request to a key:value pair
-  # lines = String.split(request, "\n")
-  def parse_request(request) do
-    # Example 1
-    # first_line = request |> String.split("\n") |> List.first()
-    # [method, path, _] = String.split(first_line, " ")
-    # ---------------------------------------------------------
-    # TODO: Parse the request string into the map:
+  @doc "pattern matching routes with overloaded functions"
+  # def route_response(conversation) do
+  #   route_response(
+  #     conversation,
+  #     conversation.method,
+  #     conversation.path
+  #   )
+  # end
 
-    [request_method, request_path, _res_body] =
-      request
-      # passes request as a first arg
-      |> String.split("\n")
-      # List.first(): Returns the first element in
-      # list or default if list is empty.
-      # take the result of above
-      |> List.first()
-      |> String.split(" ")
-
-    %{
-      method: request_method,
-      path: request_path,
-      res_body: ""
+  def route_response(%Conversation{method: "GET", path: "/wildthings"} = conversation) do
+    # TODO: Create a new map that also has the response body
+    # map is updating existing field `:res_body`
+    _response = %{
+      conversation
+      | status: 200,
+        res_body: "Teddy, Smokey, Paddington"
     }
   end
 
-  def route_response(conversation) do
+  def route_response(%Conversation{method: "GET", path: "/bears"} = conversation) do
     # TODO: Create a new map that also has the response body
     # map is updating existing field `:res_body`
-    %{conversation | res_body: "Bears, Lions, Tigers"}
+    _response = %{
+      conversation
+      | status: 200,
+        res_body: "Teddy, Smokey, Paddington"
+    }
   end
 
-  def format_response(conversation) do
+  def route_response(%Conversation{method: "GET", path: "/bears/" <> id} = conversation) do
+    _response = %{
+      conversation
+      | status: 200,
+        res_body: "Bear #{id}"
+    }
+  end
+
+  # pattern matching the route by way of a file
+  def route_response(%Conversation{method: "GET", path: "/about"} = conversation) do
+    IO.puts("\n(|case route response|):\n")
+
+    file_path =
+      @pages_path
+      |> Path.join("about.html")
+
+    case File.read(file_path) do
+      # first pattern that matches wins
+      {:ok, content} ->
+        %{conversation | status: 200, res_body: content}
+
+      {:error, :enoent} ->
+        %{conversation | status: 404, res_body: "File not found!!"}
+
+      {:error, reason} ->
+        %{conversation | status: 500, res_body: "File error: #{reason}"}
+    end
+  end
+
+  # no path matches than the pattern matching will
+  # default to this path. this function should only
+  # be called if known of the other functions match
+  # and should be below all the other route_response
+  # functions with routes in the module
+  def route_response(%Conversation{path: path} = conversation) do
+    _response = %{
+      conversation
+      | status: 404,
+        res_body: "No path found for #{path}"
+    }
+  end
+
+  def format_response(%Conversation{} = conversation) do
     # TODO: Use values in the map to create an HTTP response string
     _response = """
-    HTTP/1.1 200 OK
+    HTTP/1.1 #{Conversation.full_status(conversation)}
     Content-Type:text/html
     Content-Length: #{String.length(conversation.res_body)}
 
@@ -64,8 +121,10 @@ defmodule Handler do
 end
 
 # ----------------------------------------------
-IO.puts("=============== script ===============\n")
+alias ElixirServy.Handler
 
+IO.puts("=============== script ===============\n")
+# request 1
 request = """
 GET /wildthings HTTP/1.1
 Host: example.com
@@ -74,12 +133,72 @@ Accept: */*
 
 """
 
-# -----------------------------------------------
+response = Handler.request_handler(request)
+IO.puts("(|request-response|):\n#{response}")
+IO.puts("-----------------------------------------------")
+# request 2
+request = """
+GET /bears/1 HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
 
 response = Handler.request_handler(request)
 IO.puts("(|request-response|):\n#{response}")
+IO.puts("-----------------------------------------------")
+# request 3
+request = """
+GET /bigfoot HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
 
-# -----------------------------------------------
+"""
+
+response = Handler.request_handler(request)
+IO.puts("(|request-response|):\n#{response}")
+IO.puts("-----------------------------------------------")
+
+# request 4
+request = """
+GET /wildlife HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Handler.request_handler(request)
+IO.puts("(|request-response|):\n#{response}")
+IO.puts("-----------------------------------------------")
+
+# request 5
+request = """
+GET /about HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Handler.request_handler(request)
+IO.puts("(|request-response|):\n#{response}")
+IO.puts("-----------------------------------------------")
+
+# request 5
+# request = """
+# GET /bears/new HTTP/1.1
+# Host: example.com
+# User-Agent: ExampleBrowser/1.0
+# Accept: */*
+
+# """
+
+# response = Handler.request_handler(request)
+# IO.puts("(|request-response|):\n#{response}")
+# IO.puts("-----------------------------------------------")
 # Handler.parse_request("")
 # -----------------------------------------------
 
