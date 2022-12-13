@@ -11,20 +11,20 @@ defmodule ElixirServy.Parser do
     # [method, path, _] = String.split(first_line, " ")
     # ---------------------------------------------------------
     # TODO: Parse the request string into the map:
+    [top, param_string_last_line] = String.split(request, "\n\n")
+    [request_line | header_lines] = String.split(top, "\n")
 
-    [request_method, request_path, _] =
-      request
-      # passes request as a first arg
-      |> String.split("\n")
-      # List.first(): Returns the first element in
-      # list or default if list is empty.
-      # take the result of above
-      |> List.first()
-      |> String.split(" ")
+    [request_method, request_path, _] = String.split(request_line, " ")
+    params = parse_params(param_string_last_line)
 
     _request = %Conversation{
       method: request_method,
-      path: request_path
+      path: request_path,
+      params: params
     }
+  end
+
+  def parse_params(params_string) do
+    params_string |> String.trim() |> URI.decode_query()
   end
 end

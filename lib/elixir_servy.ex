@@ -1,18 +1,9 @@
 defmodule ElixirServy do
   @moduledoc """
-  Documentation for `ElixirServy`.
+  main module to run app
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> ElixirServy.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def test do
+    #
   end
 end

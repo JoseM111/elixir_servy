@@ -10,7 +10,9 @@ defmodule ElixirServy.Handler do
     ]
 
   import ElixirServy.Parser, only: [parse_request: 1]
+
   alias ElixirServy.Conversation
+  # =================================================
 
   # declaring a compile-time constant
   @pages_path Path.expand("../../pages", __DIR__)
@@ -49,7 +51,7 @@ defmodule ElixirServy.Handler do
   def route_response(%Conversation{method: "GET", path: "/wildthings"} = conversation) do
     # TODO: Create a new map that also has the response body
     # map is updating existing field `:res_body`
-    _response = %{
+    _response = %Conversation{
       conversation
       | status: 200,
         res_body: "Teddy, Smokey, Paddington"
@@ -59,7 +61,7 @@ defmodule ElixirServy.Handler do
   def route_response(%Conversation{method: "GET", path: "/bears"} = conversation) do
     # TODO: Create a new map that also has the response body
     # map is updating existing field `:res_body`
-    _response = %{
+    _response = %Conversation{
       conversation
       | status: 200,
         res_body: "Teddy, Smokey, Paddington"
@@ -67,10 +69,25 @@ defmodule ElixirServy.Handler do
   end
 
   def route_response(%Conversation{method: "GET", path: "/bears/" <> id} = conversation) do
-    _response = %{
+    _response = %Conversation{
       conversation
       | status: 200,
         res_body: "Bear #{id}"
+    }
+  end
+
+  # POST REQUEST: name=Baloo&type=Brown
+  def route_response(%Conversation{method: "POST", path: "/bears"} = conversation) do
+    # TODO: Parse the last line of the request into a params map
+    params = %{"name" => "Baloo", "type" => "Brown"}
+
+    _response = %Conversation{
+      conversation
+      | status: 201,
+        res_body: """
+        Created a (#{conversation.params["type"]})
+        bear named (#{conversation.params["name"]})
+        """
     }
   end
 
@@ -85,13 +102,25 @@ defmodule ElixirServy.Handler do
     case File.read(file_path) do
       # first pattern that matches wins
       {:ok, content} ->
-        %{conversation | status: 200, res_body: content}
+        %Conversation{
+          conversation
+          | status: 200,
+            res_body: content
+        }
 
       {:error, :enoent} ->
-        %{conversation | status: 404, res_body: "File not found!!"}
+        %Conversation{
+          conversation
+          | status: 404,
+            res_body: "File not found!!"
+        }
 
       {:error, reason} ->
-        %{conversation | status: 500, res_body: "File error: #{reason}"}
+        %Conversation{
+          conversation
+          | status: 500,
+            res_body: "File error: #{reason}"
+        }
     end
   end
 
@@ -101,7 +130,7 @@ defmodule ElixirServy.Handler do
   # and should be below all the other route_response
   # functions with routes in the module
   def route_response(%Conversation{path: path} = conversation) do
-    _response = %{
+    _response = %Conversation{
       conversation
       | status: 404,
         res_body: "No path found for #{path}"
@@ -188,19 +217,20 @@ IO.puts("(|request-response|):\n#{response}")
 IO.puts("-----------------------------------------------")
 
 # request 5
-# request = """
-# GET /bears/new HTTP/1.1
-# Host: example.com
-# User-Agent: ExampleBrowser/1.0
-# Accept: */*
+request = """
+POST /bears HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 21
 
-# """
+name=Baloo&type=Brown
+"""
 
-# response = Handler.request_handler(request)
-# IO.puts("(|request-response|):\n#{response}")
-# IO.puts("-----------------------------------------------")
-# Handler.parse_request("")
-# -----------------------------------------------
+response = Handler.request_handler(request)
+IO.puts("(|request-response [POST]|):\n#{response}")
+IO.puts("-----------------------------------------------")
 
 IO.puts("=============== script ===============\n\n")
 
