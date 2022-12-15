@@ -8,7 +8,7 @@ defmodule ElixirServy.Wildthings do
       %Bear{id: 1, name: "Teddy", type: "Brown", hibernating: true},
       %Bear{id: 2, name: "Smokey", type: "Black"},
       %Bear{id: 3, name: "Paddington", type: "Brown"},
-      %Bear{id: 4, name: "Scareface", type: "Grizzly", hibernating: true},
+      %Bear{id: 4, name: "Scarface", type: "Grizzly", hibernating: true},
       %Bear{id: 5, name: "Snow", type: "Polar"},
       %Bear{id: 6, name: "Brutas", type: "Grizzly"},
       %Bear{id: 7, name: "Rosie", type: "Black", hibernating: true},
