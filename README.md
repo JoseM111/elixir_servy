@@ -475,3 +475,49 @@ Done!
 ```
 :ok
 ```
+
+### Eample of an anonymous function and its shorthand syntax
+
+```elixir
+phrases = ["lions", "tigers", "bears", "oh my"]
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["lions", "tigers", "bears", "oh my"]
+```
+
+```elixir
+Enum.map(phrases, fn x -> String.upcase(x) end)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["LIONS", "TIGERS", "BEARS", "OH MY"]
+```
+
+### Shorthand version
+
+```elixir
+Enum.map(phrases, &String.upcase(&1))
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["LIONS", "TIGERS", "BEARS", "OH MY"]
+```
+
+### You can also pass the aridy of the function with a `/`
+
+```elixir
+Enum.map(phrases, &String.upcase/1)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["LIONS", "TIGERS", "BEARS", "OH MY"]
+```
