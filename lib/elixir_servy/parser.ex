@@ -1,11 +1,12 @@
 # parser.ex
 
 defmodule ElixirServy.Parser do
+  # aliases
+  alias ElixirServy.Conversation
+
   # the parse functions changes a request to a key:value pair
   # lines = String.split(request, "\n")
   def parse_request(request) do
-    alias ElixirServy.Conversation
-
     # Example 1
     # first_line = request |> String.split("\n") |> List.first()
     # [method, path, _] = String.split(first_line, " ")

@@ -7,7 +7,7 @@ defmodule ElixirServy.BearController do
   alias ElixirServy.Bear
   # ==================================================
 
-  # constants
+  # constants `@` module attribute
   @template_path Path.expand("../../templates", __DIR__)
 
   def render_markup(conversation, template_file, bindings \\ []) do
