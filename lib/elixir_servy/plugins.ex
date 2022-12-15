@@ -23,7 +23,7 @@ defmodule ElixirServy.Plugins do
   def log_request(%Conversation{} = conversation) do
     IO.inspect(
       conversation,
-      label: "(|conversation map before request|)\n"
+      label: "(|conversation map before request #{conversation.method}|)\n"
     )
   end
 end

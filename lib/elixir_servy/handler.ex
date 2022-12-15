@@ -11,7 +11,9 @@ defmodule ElixirServy.Handler do
 
   import ElixirServy.Parser, only: [parse_request: 1]
 
+  # aliases
   alias ElixirServy.Conversation
+  alias ElixirServy.BearController
   # =================================================
 
   # declaring a compile-time constant
@@ -40,13 +42,6 @@ defmodule ElixirServy.Handler do
   end
 
   @doc "pattern matching routes with overloaded functions"
-  # def route_response(conversation) do
-  #   route_response(
-  #     conversation,
-  #     conversation.method,
-  #     conversation.path
-  #   )
-  # end
 
   def route_response(%Conversation{method: "GET", path: "/wildthings"} = conversation) do
     # TODO: Create a new map that also has the response body
@@ -54,41 +49,25 @@ defmodule ElixirServy.Handler do
     _response = %Conversation{
       conversation
       | status: 200,
-        res_body: "Teddy, Smokey, Paddington"
+        res_body: "Bears, Lions, Tigers"
     }
   end
 
   def route_response(%Conversation{method: "GET", path: "/bears"} = conversation) do
     # TODO: Create a new map that also has the response body
     # map is updating existing field `:res_body`
-    _response = %Conversation{
-      conversation
-      | status: 200,
-        res_body: "Teddy, Smokey, Paddington"
-    }
+    BearController.index(conversation)
   end
 
   def route_response(%Conversation{method: "GET", path: "/bears/" <> id} = conversation) do
-    _response = %Conversation{
-      conversation
-      | status: 200,
-        res_body: "Bear #{id}"
-    }
+    params = Map.put(conversation.params, "id", id)
+    BearController.show(conversation, params)
   end
 
   # POST REQUEST: name=Baloo&type=Brown
   def route_response(%Conversation{method: "POST", path: "/bears"} = conversation) do
     # TODO: Parse the last line of the request into a params map
-    params = %{"name" => "Baloo", "type" => "Brown"}
-
-    _response = %Conversation{
-      conversation
-      | status: 201,
-        res_body: """
-        Created a (#{conversation.params["type"]})
-        bear named (#{conversation.params["name"]})
-        """
-    }
+    BearController.create(conversation, conversation.params)
   end
 
   # pattern matching the route by way of a file
@@ -163,21 +142,9 @@ Accept: */*
 """
 
 response = Handler.request_handler(request)
-IO.puts("(|request-response|):\n#{response}")
+IO.puts("(|request-response [GET]|):\n#{response}")
 IO.puts("-----------------------------------------------")
 # request 2
-request = """
-GET /bears/1 HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept: */*
-
-"""
-
-response = Handler.request_handler(request)
-IO.puts("(|request-response|):\n#{response}")
-IO.puts("-----------------------------------------------")
-# request 3
 request = """
 GET /bigfoot HTTP/1.1
 Host: example.com
@@ -187,10 +154,9 @@ Accept: */*
 """
 
 response = Handler.request_handler(request)
-IO.puts("(|request-response|):\n#{response}")
+IO.puts("(|request-response [GET]|):\n#{response}")
 IO.puts("-----------------------------------------------")
-
-# request 4
+# request 3
 request = """
 GET /wildlife HTTP/1.1
 Host: example.com
@@ -200,10 +166,10 @@ Accept: */*
 """
 
 response = Handler.request_handler(request)
-IO.puts("(|request-response|):\n#{response}")
+IO.puts("(|request-response [GET]|):\n#{response}")
 IO.puts("-----------------------------------------------")
 
-# request 5
+# request 4
 request = """
 GET /about HTTP/1.1
 Host: example.com
@@ -213,7 +179,7 @@ Accept: */*
 """
 
 response = Handler.request_handler(request)
-IO.puts("(|request-response|):\n#{response}")
+IO.puts("(|request-response [GET]|):\n#{response}")
 IO.puts("-----------------------------------------------")
 
 # request 5
@@ -230,6 +196,32 @@ name=Baloo&type=Brown
 
 response = Handler.request_handler(request)
 IO.puts("(|request-response [POST]|):\n#{response}")
+IO.puts("-----------------------------------------------")
+
+# request 6
+request = """
+GET /bears HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Handler.request_handler(request)
+IO.puts("(|request-response [GET]|):\n#{response}")
+IO.puts("-----------------------------------------------")
+
+# request 7
+request = """
+GET /bears/1 HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Handler.request_handler(request)
+IO.puts("(|request-response [GET]|):\n#{response}")
 IO.puts("-----------------------------------------------")
 
 IO.puts("=============== script ===============\n\n")

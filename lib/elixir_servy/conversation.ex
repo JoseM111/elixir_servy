@@ -7,6 +7,7 @@ defmodule ElixirServy.Conversation do
   defstruct method: "",
             path: "",
             params: %{},
+            headers: %{},
             res_body: "",
             status: nil
 
