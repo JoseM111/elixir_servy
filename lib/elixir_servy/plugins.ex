@@ -5,7 +5,7 @@ defmodule ElixirServy.Plugins do
 
   @doc "Logs 404 requests"
   def track_status_code(%Conversation{status: 404, path: path} = conversation) do
-    IO.puts("WARNING: #{path} is on the loose!!!")
+    IO.puts("WARNING: (#{path}) is on the loose!!!")
     conversation
   end
 
@@ -23,7 +23,7 @@ defmodule ElixirServy.Plugins do
   def log_request(%Conversation{} = conversation) do
     IO.inspect(
       conversation,
-      label: "(|conversation map before request|)\n"
+      label: "(|conversation map before request #{conversation.method}|)\n"
     )
   end
 end

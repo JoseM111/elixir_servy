@@ -4,10 +4,15 @@ defmodule ElixirServy.Conversation do
   alias ElixirServy.Conversation
   @doc "the name of the struct is the same as the module.
        you cannot declare more than one struct in a module"
-  defstruct method: "", path: "", res_body: "", status: nil
+  defstruct method: "",
+            path: "",
+            params: %{},
+            headers: %{},
+            res_body: "",
+            status: nil
 
   def full_status(%Conversation{} = conversation) do
-    "#{conversation.status} #{status_code(conversation.status)}"
+    "(#{conversation.status}) (#{status_code(conversation.status)})"
   end
 
   # =============== utility-functions ===============
