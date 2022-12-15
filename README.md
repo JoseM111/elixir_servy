@@ -521,3 +521,47 @@ Enum.map(phrases, &String.upcase/1)
 ```
 ["LIONS", "TIGERS", "BEARS", "OH MY"]
 ```
+
+### Using a looping comprehension
+
+```elixir
+my_list = [1, 2, 3]
+Enum.map(my_list, fn item -> item * 3 end)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[3, 6, 9]
+```
+
+### A single line comprehension
+
+#### `item <- my_list` is called the generator
+
+```elixir
+for item <- my_list, do: item * 3
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[3, 6, 9]
+```
+
+#### A loop with `two generators`. Using multiple generators like this acts like having a nested `for-loop`
+
+```elixir
+t_shirt_sizes = ["S", "M", "L"]
+t_shirt_colors = [:red, :blue]
+
+for size <- t_shirt_sizes,
+    color <- t_shirt_colors,
+    do: {size, color}
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[{"S", :red}, {"S", :blue}, {"M", :red}, {"M", :blue}, {"L", :red}, {"L", :blue}]
+```
