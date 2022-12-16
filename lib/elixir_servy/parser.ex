@@ -12,10 +12,11 @@ defmodule ElixirServy.Parser do
     # [method, path, _] = String.split(first_line, " ")
     # ---------------------------------------------------------
     # TODO: Parse the request string into the map:
-    [top_level_of_request, request_bottom_body_query] = String.split(request, "\n\n")
+    [top_level_of_request, request_bottom_body_query] = String.split(request, "\r\n\r\n")
 
     # the `_` is for `http_headers_in_a_list` that we dont need
-    [first_line_of_request | http_headers_in_a_list] = String.split(top_level_of_request, "\n")
+    [first_line_of_request | http_headers_in_a_list] = String.split(top_level_of_request, "\r\n")
+
     [request_method, request_path, _] = String.split(first_line_of_request, " ")
 
     headers = parse_headers(http_headers_in_a_list, %{})
@@ -43,6 +44,17 @@ defmodule ElixirServy.Parser do
   """
   def parse_headers([], headers), do: headers
 
+  @doc """
+  Parses the given param string of the form `key1=value1&key2=value2`
+  into a map with corresponding keys and values.
+
+  ## Examples
+      iex> params_string = "name=Baloo&type=Brown"
+      iex> ElixirServy.Parser.parse_params("application/x-www-form-urlencoded", params_string)
+      %{"name" => "Baloo", "type" => "Brown"}
+      iex> ElixirServy.Parser.parse_params("multipart/form-data", params_string)
+      %{}
+  """
   def parse_params("application/x-www-form-urlencoded", params_string) do
     params_string |> String.trim() |> URI.decode_query()
   end

@@ -37,10 +37,7 @@ defmodule ElixirServy.BearController do
     _response = %Conversation{
       conversation
       | status: 201,
-        res_body: """
-        Created a (#{type})
-        bear named (#{name})
-        """
+        res_body: "Created a #{type} bear named #{name}!"
     }
   end
 end
