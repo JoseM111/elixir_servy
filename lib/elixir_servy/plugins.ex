@@ -5,7 +5,10 @@ defmodule ElixirServy.Plugins do
 
   @doc "Logs 404 requests"
   def track_status_code(%Conversation{status: 404, path: path} = conversation) do
-    IO.puts("WARNING: (#{path}) is on the loose!!!")
+    if Mix.env() != :test do
+      IO.puts("#{path} is on the loose!")
+    end
+
     conversation
   end
 
@@ -21,9 +24,13 @@ defmodule ElixirServy.Plugins do
   def rewrite_path(%Conversation{} = conversation), do: conversation
 
   def log_request(%Conversation{} = conversation) do
-    IO.inspect(
-      conversation,
-      label: "(|conversation map before request #{conversation.method}|)\n"
-    )
+    if Mix.env() == :dev do
+      IO.inspect(
+        conversation,
+        label: "(|conversation map before request #{conversation.method}|)"
+      )
+    end
+
+    conversation
   end
 end

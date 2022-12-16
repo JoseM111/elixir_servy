@@ -10,7 +10,7 @@ defmodule ElixirServy.Wildthings do
       %Bear{id: 3, name: "Paddington", type: "Brown"},
       %Bear{id: 4, name: "Scarface", type: "Grizzly", hibernating: true},
       %Bear{id: 5, name: "Snow", type: "Polar"},
-      %Bear{id: 6, name: "Brutas", type: "Grizzly"},
+      %Bear{id: 6, name: "Brutus", type: "Grizzly"},
       %Bear{id: 7, name: "Rosie", type: "Black", hibernating: true},
       %Bear{id: 8, name: "Roscoe", type: "Panda"},
       %Bear{id: 9, name: "Iceman", type: "Polar", hibernating: true},

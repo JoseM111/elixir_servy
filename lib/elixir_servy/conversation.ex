@@ -8,11 +8,12 @@ defmodule ElixirServy.Conversation do
             path: "",
             params: %{},
             headers: %{},
+            res_content_type: "text/html",
             res_body: "",
             status: nil
 
   def full_status(%Conversation{} = conversation) do
-    "(#{conversation.status}) (#{status_code(conversation.status)})"
+    "#{conversation.status} #{status_code(conversation.status)}"
   end
 
   # =============== utility-functions ===============

@@ -53,6 +53,12 @@ defmodule ElixirServy.Handler do
     }
   end
 
+  def route_response(%Conversation{method: "GET", path: "/api/bears"} = conversation) do
+    # TODO: Create a new map that also has the response body
+    # map is updating existing field `:res_body`
+    ElixirServy.Api.ApiBearController.index(conversation)
+  end
+
   def route_response(%Conversation{method: "GET", path: "/bears"} = conversation) do
     # TODO: Create a new map that also has the response body
     # map is updating existing field `:res_body`
@@ -112,118 +118,18 @@ defmodule ElixirServy.Handler do
     _response = %Conversation{
       conversation
       | status: 404,
-        res_body: "No path found for #{path}"
+        res_body: "No #{path} here!"
     }
   end
 
   def format_response(%Conversation{} = conversation) do
     # TODO: Use values in the map to create an HTTP response string
     _response = """
-    HTTP/1.1 #{Conversation.full_status(conversation)}
-    Content-Type:text/html
-    Content-Length: #{String.length(conversation.res_body)}
-
+    HTTP/1.1 #{Conversation.full_status(conversation)}\r
+    Content-Type: #{conversation.res_content_type}\r
+    Content-Length: #{String.length(conversation.res_body)}\r
+    \r
     #{conversation.res_body}
     """
   end
 end
-
-# ----------------------------------------------
-alias ElixirServy.Handler
-
-IO.puts("=============== script ===============\n")
-# request 1
-request = """
-GET /wildthings HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept: */*
-
-"""
-
-response = Handler.request_handler(request)
-IO.puts("(|request-response [GET]|):\n#{response}")
-IO.puts("-----------------------------------------------")
-# request 2
-request = """
-GET /bigfoot HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept: */*
-
-"""
-
-response = Handler.request_handler(request)
-IO.puts("(|request-response [GET]|):\n#{response}")
-IO.puts("-----------------------------------------------")
-# request 3
-request = """
-GET /wildlife HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept: */*
-
-"""
-
-response = Handler.request_handler(request)
-IO.puts("(|request-response [GET]|):\n#{response}")
-IO.puts("-----------------------------------------------")
-
-# request 4
-request = """
-GET /about HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept: */*
-
-"""
-
-response = Handler.request_handler(request)
-IO.puts("(|request-response [GET]|):\n#{response}")
-IO.puts("-----------------------------------------------")
-
-# request 5
-request = """
-POST /bears HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept: */*
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 21
-
-name=Baloo&type=Brown
-"""
-
-response = Handler.request_handler(request)
-IO.puts("(|request-response [POST]|):\n#{response}")
-IO.puts("-----------------------------------------------")
-
-# request 6
-request = """
-GET /bears HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept: */*
-
-"""
-
-response = Handler.request_handler(request)
-IO.puts("(|request-response [GET]|):\n#{response}")
-IO.puts("-----------------------------------------------")
-
-# request 7
-request = """
-GET /bears/1 HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept: */*
-
-"""
-
-response = Handler.request_handler(request)
-IO.puts("(|request-response [GET]|):\n#{response}")
-IO.puts("-----------------------------------------------")
-
-IO.puts("=============== script ===============\n\n")
-
-Code.compiler_options(ignore_module_conflict: true)
